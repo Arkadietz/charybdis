@@ -256,18 +256,14 @@ free_local_client(struct Client *client_p)
 	if(IsSSL(client_p))
 	    ssld_decrement_clicount(client_p->localClient->ssl_ctl);
 
-	rb_free(client_p->localClient->cipher_string);
-
 	if(IsCapable(client_p, CAP_ZIP))
 	    ssld_decrement_clicount(client_p->localClient->z_ctl);
-
-	rb_free(client_p->localClient->zipstats);
 
 	rb_bh_free(lclient_heap, client_p->localClient);
 	client_p->localClient = NULL;
 }
 
-static void
+void
 free_client(struct Client *client_p)
 {
 	s_assert(NULL != client_p);
@@ -797,10 +793,17 @@ remove_client_from_list(struct Client *client_p)
  * output	- 0 if erroneous, else 1
  * side effects -
  */
+
+/* Added cyrillic support by Rix @ 27 May 2016 */
+/* Pre-pached by Deyan Hristanov */
+
 int
 clean_nick(const char *nick, int loc_client)
 {
 	int len = 0;
+
+        int cyrillic = 0;
+        const char *myletter;
 
 	/* nicks cant start with a digit or -, and must have a length */
 	if(*nick == '-' || *nick == '\0')
@@ -808,12 +811,22 @@ clean_nick(const char *nick, int loc_client)
 
 	if(loc_client && IsDigit(*nick))
 		return 0;
+	
+        myletter = nick;
+        for(; *myletter; myletter++)
+        {
+                if(IsCyrChar(*myletter))
+                      cyrillic = 1;
+        }
 
 	for(; *nick; nick++)
 	{
 		len++;
 		if(!IsNickChar(*nick))
 			return 0;
+
+		if(cyrillic == 1 && NIsAlpha(*nick))
+            return 0;
 	}
 
 	/* nicklen is +1 */

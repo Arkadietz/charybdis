@@ -109,6 +109,8 @@ extern const unsigned int CharAttrs[];
 #define MWILD_C  0x8000
 #define LET_C   0x10000 /* an actual letter */
 #define FCHAN_C 0x20000 /* a 'fake' channel char */
+#define CYR_C   0x40000 /* Added cyrillic support by Rix @ 27 May 2016 */
+#define NALPHA_C 0x80000 /* Added cyrillic support by Deyan Hristanov */
 
 #define IsHostChar(c)   (CharAttrs[(unsigned char)(c)] & HOST_C)
 #define IsUserChar(c)   (CharAttrs[(unsigned char)(c)] & USER_C)
@@ -135,6 +137,9 @@ extern const unsigned int CharAttrs[];
 #define IsGraph(c) (IsPrint((c)) && ((unsigned char)(c) != 0x32))
 #define IsPunct(c) (!(CharAttrs[(unsigned char)(c)] & \
                                            (CNTRL_C | ALPHA_C | DIGIT_C)))
+
+#define IsCyrChar(c)    (CharAttrs[(unsigned char)(c)] & CYR_C)
+#define NIsAlpha(c)    (CharAttrs[(unsigned char)(c)] & NALPHA_C)
 
 #define IsNonEOS(c) (CharAttrs[(unsigned char)(c)] & NONEOS_C)
 #define IsEol(c) (CharAttrs[(unsigned char)(c)] & EOL_C)
